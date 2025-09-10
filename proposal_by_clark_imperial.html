@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Proposal by Clark Imperial ❤️</title>
+<style>
+    :root{
+      --bg1: #ff9a9e;
+      --bg2: #fecfef;
+      --accent: #ff4d79;
+      --muted: #fff5f8;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,var(--bg1),var(--bg2));display:flex;align-items:center;justify-content:center;color:#3b2733;overflow:hidden}
+    .card{width:94%;max-width:720px;background:rgba(255,255,255,0.12);backdrop-filter:blur(6px);border-radius:18px;padding:28px;text-align:center;box-shadow:0 10px 40px rgba(19,10,20,0.35);position:relative;z-index:2}
+    h1{margin:0;font-size:32px;color:#fff;text-shadow:0 6px 20px rgba(255,77,121,0.14)}
+    p.lead{color:rgba(255,255,255,0.9);margin:10px 0 20px;font-size:18px}
+    .controls{display:flex;gap:16px;justify-content:center;margin-top:8px;position:relative;height:66px}
+    button{padding:12px 22px;border-radius:12px;border:0;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,0.18)}
+    .yes{background:linear-gradient(90deg,var(--accent),#ff859e);color:white}
+    .no{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.18);min-width:110px}
+    #noBtn{position:relative;transition:transform .12s ease,left .12s,top .12s}
+    #message{display:none;margin-top:18px;font-size:20px;color:#fff}
+    .heartsLayer{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+    .heart{position:absolute;width:22px;height:22px;background:#ff6b98;transform:rotate(45deg);border-radius:4px;opacity:0;box-shadow:0 6px 18px rgba(255,107,152,0.18)}
+    .heart::before,.heart::after{content:'';position:absolute;width:22px;height:22px;background:#ff6b98;border-radius:50%}
+    .heart::before{left:0;top:-11px}
+    .heart::after{left:-11px;top:0}
+    footer{margin-top:20px;color:rgba(255,255,255,0.9);font-size:13px}
+    /* small responsive tweaks */
+    @media (max-width:520px){ h1{font-size:22px} .card{padding:18px} button{padding:10px 16px;font-size:15px} #message{font-size:18px} }
+  </style>
+</head>
+<body>
+<div class="heartsLayer" id="heartsLayer"></div>
+<div aria-live="polite" class="card" id="mainCard">
+<h1>Do you love me? 💖</h1>
+<p class="lead">Totoo lang ha... Try the buttons. 😊</p>
+<div class="controls">
+<button class="yes" id="yesBtn">Yes 💕</button>
+<button class="no" id="noBtn">No 🙈</button>
+</div>
+<div id="message">Ayieee I love you be mwah mwah ahh daddy robb 💕</div>
+<footer>Created by Clark Imperial</footer>
+</div>
+<!-- Audio source is a public MP3 file that will be played after user clicks YES -->
+<audio id="bgMusic" preload="auto">
+<source src="https://files.catbox.moe/8xqj6h.mp3" type="audio/mpeg"/>
+</audio>
+<script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const message = document.getElementById('message');
+    const bgMusic = document.getElementById('bgMusic');
+    const heartsLayer = document.getElementById('heartsLayer');
+    let avoidCount = 0;
+
+    function moveNo() {
+      // move to random visible position
+      const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+      const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+      const left = Math.floor( Math.random() * (vw - 120) );
+      const top = Math.floor( Math.random() * (vh - 80) );
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = left + 'px';
+      noBtn.style.top = top + 'px';
+      avoidCount++;
+      if (avoidCount > 8) {
+        noBtn.textContent = 'Ok fine 😳';
+        noBtn.style.transform = 'scale(1.02)';
+      }
+    }
+
+    noBtn.addEventListener('mouseenter', moveNo);
+    noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); moveNo(); }, {passive:false});
+    noBtn.addEventListener('click', function(e){ e.preventDefault(); moveNo(); });
+
+    yesBtn.addEventListener('click', function() {
+      // show message
+      document.querySelector('h1').style.display = 'none';
+      document.querySelector('.lead').style.display = 'none';
+      document.querySelector('.controls').style.display = 'none';
+      message.style.display = 'block';
+
+      // play music (user gesture allows playback)
+      bgMusic.currentTime = 0;
+      const playPromise = bgMusic.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(()=>{/* autoplay blocked — will play on next user gesture */});
+      }
+
+      // create heart burst
+      burstHearts(20);
+    });
+
+    function burstHearts(count){
+      for(let i=0;i<count;i++){
+        createHeart();
+      }
+      // continue adding occasional hearts for a while
+      let t = 0;
+      const iv = setInterval(()=>{
+        createHeart();
+        t++;
+        if (t>30){ clearInterval(iv); }
+      }, 300);
+    }
+
+    function createHeart(){
+      const h = document.createElement('div');
+      h.className = 'heart';
+      // random start position at bottom area
+      const startX = Math.random() * 100;
+      h.style.left = startX + '%';
+      h.style.bottom = -20 + 'px';
+      h.style.opacity = 1;
+      h.style.width = (14 + Math.random()*22) + 'px';
+      h.style.height = h.style.width;
+      // color variation
+      const hue = 330 + Math.random()*20;
+      h.style.background = `hsl(${hue} 90% 65%)`;
+      h.style.boxShadow = `0 8px 20px rgba(0,0,0,0.12)`;
+      heartsLayer.appendChild(h);
+
+      // animate using Web Animations API for smoothness
+      const travel = 300 + Math.random()*350;
+      const drift = (Math.random()-0.5) * 160;
+      h.animate([
+        { transform: 'translateY(0) rotate(45deg) scale(0.8)', opacity: 1 },
+        { transform: `translateY(-${travel}px) translateX(${drift}px) rotate(45deg) scale(1)`, opacity: 0.95 }
+      ], { duration: 1800 + Math.random()*1200, easing: 'cubic-bezier(.2,.8,.2,1)' });
+
+      // remove after animation
+      setTimeout(()=> h.remove(), 3000 + Math.random()*1200);
+    }
+
+    // accessibility: keyboard shortcuts
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'y' || e.key === 'Y') yesBtn.click();
+      if (e.key === 'n' || e.key === 'N') moveNo();
+    });
+  </script>
+<iframe allow="autoplay" frameborder="0" height="0" id="loveSong" src="" style="display:none;" width="0"></iframe><script>
+document.getElementById("yesBtn").addEventListener("click", function() {
+    var iframe = document.getElementById("loveSong");
+    iframe.src = "https://www.youtube.com/embed/x55A69SSvsg?autoplay=1&mute=0";
+    iframe.style.display = "none";
+});
+</script></body>
+</html>
